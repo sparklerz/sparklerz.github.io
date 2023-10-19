@@ -5,14 +5,34 @@
 </head>
 <body>
 
+    <form id="myForm">
+        <h1>Configure the patient's details below</h1>
+        
+        <label for="name">Enter the preferred name to be used in the conversation:</label>
+        <input type="text" id="name" name="name" placeholder="Your name">
 
-    <h1>Configure the patient's details below</h1>
-    <label for="name">Enter your name:</label>
-    <input type="text" id="name" name="name" placeholder="Your name">
+        <label for="favourites">Enter the personal favourites:</label>
+        <input type="text" id="favourites" name="favourites" placeholder="Your favourites">
 
+        <div id="inputFields">
+            <!-- Initial set of input fields -->
+            <div>
+              <input type="text" name="field1" placeholder="Field 1">
+              <input type="text" name="field2" placeholder="Field 2">
+              <input type="text" name="field3" placeholder="Field 3">
+              <button type="button" onclick="removeField(this)">Remove</button>
+            </div>
+        </div>
+        <button type="button" onclick="addField()">Add</button>    
 
+        <label for="favourites">Enter regimen status (initial or intensified):</label>
+        <input type="text" id="favourites" name="favourites" placeholder="Your favourites">
 
-    <button id="submit">Submit</button>
+        <input type="submit" value="Submit">
+
+        <button id="submit">Submit</button>
+    
+    </form>
 
 
 
