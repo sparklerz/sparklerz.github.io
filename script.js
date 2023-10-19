@@ -82,9 +82,9 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    // 'Accept' : '*/*',
-                    // 'Accept-Encoding' : 'gzip, deflate, br',
-                    // 'Connection' : 'keep-alive'
+                    'Accept' : '*/*',
+                    'Accept-Encoding' : 'gzip, deflate, br',
+                    'Connection' : 'keep-alive'
                     // You may need to include additional headers as required by the API
                 },
                 body: JSON.stringify(data)
