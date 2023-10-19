@@ -2,6 +2,10 @@
         //const submitButton = document.getElementById('submit');
         const nameInput = document.getElementById('name');
 
+        const favouritesInput = document.getElementById('favourites');
+
+        const statusInput = document.getElementById('status');
+
         function addField() {
             const inputFields = document.getElementById("inputFields");
       
@@ -25,7 +29,6 @@
         function storeValues() {
             const inputFields = document.querySelectorAll("#inputFields div");
             const tempArray = [];
-            const valuesArray = [];
       
             inputFields.forEach((fieldSet) => {
               const inputs = fieldSet.querySelectorAll("input");
@@ -38,10 +41,9 @@
               tempArray.push(fieldValues);
             });
       
-            valuesArray.push(tempArray);
-      
+            
             // Log the values in the 2D array for demonstration
-            console.log(valuesArray);
+            console.log(tempArray);
       
             // You can send the valuesArray to the server or further process it as needed
           }
@@ -49,11 +51,12 @@
           // Attach the storeValues function to the form's submit event
           document.getElementById("myForm").addEventListener("submit", function (event) {
             storeValues();
-            event.preventDefault(); // Prevent actual form submission
-          });
 
-        // submitButton.addEventListener('click', () => {
-        //     const name = nameInput.value;
+            
+
+
+
+            //     const name = nameInput.value;
 
         //     // Define the data to send
         //     const data = {
@@ -83,4 +86,10 @@
         //     .catch(error => {
         //         console.error('Error:', error);
         //     });
+
+            event.preventDefault(); // Prevent actual form submission
+          });
+
+        // submitButton.addEventListener('click', () => {
+        
         // });
