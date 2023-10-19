@@ -48,7 +48,7 @@
           // Attach the storeValues function to the form's submit event
           document.getElementById("myForm").addEventListener("submit", function (event) {
             storeValues();
-            event.preventDefault(); // Prevent actual form submission
+            //event.preventDefault(); // Prevent actual form submission
           });
 
         // submitButton.addEventListener('click', () => {
