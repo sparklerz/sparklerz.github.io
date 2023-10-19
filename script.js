@@ -25,6 +25,7 @@
         function storeValues() {
             const inputFields = document.querySelectorAll("#inputFields div");
             const tempArray = [];
+            const valuesArray = [];
       
             inputFields.forEach((fieldSet) => {
               const inputs = fieldSet.querySelectorAll("input");
