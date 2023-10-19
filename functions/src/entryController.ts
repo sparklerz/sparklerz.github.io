@@ -154,7 +154,7 @@ const wishWithNickName = async (req: Request, res: Response) => {
             sessionInfo: {
                 //session: req.body.sessionInfo.session,
                 parameters: {
-                    personal_like : currentData.sports,
+                    personal_like : currentData.like,
                 }
             }
         };
@@ -181,7 +181,7 @@ const wishWithNickName = async (req: Request, res: Response) => {
         let medicine = '';
 
         for (var index in currentData) {
-            if(personData.criticality === currentData[index].criticality)
+            if(personData.criticality === currentData[index].criticality && currentData[index].deleted === "false")
             {  medicine = medicine.concat(" medicine : " + currentData[index].medicine + " dosage : " + currentData[index].dosage);}
         }
 
@@ -224,4 +224,105 @@ const wishWithNickName = async (req: Request, res: Response) => {
     }
   }
 
-export { addEntry, getAllEntries, updateEntry, deleteEntry, wishWithNickName, setPersonalLikeParamter, setMedicineParameter, setStreakParameter }
+  const updatePersonDetails = async (req: Request, res: Response) => {
+    const { body: { nickName, personalLike, criticality, initialMedicine, intensifiedMedicine }} = req
+
+    try {
+
+      const entryPerson = db.collection('person_likes').doc('1')
+      const currentPersonData = (await entryPerson.get()).data() || {}
+  
+      const entryPersonObject = {
+        nickName : nickName || currentPersonData.nickName,
+        personId : "1",
+        like : personalLike || currentPersonData.like
+      }
+  
+      await entryPerson.set(entryPersonObject).catch(error => {
+        return res.status(400).json({
+          status: 'error',
+          message: error.message
+        })
+      })
+
+      const entryPersonCriticality = db.collection('person_criticality').doc('1')
+      const currentPersonCriticalityData = (await entryPersonCriticality.get()).data() || {}
+  
+      const entryPersonCriticalityObject = {
+        criticality : criticality || currentPersonCriticalityData.criticality,
+        personId : "1"
+      }
+  
+      await entryPersonCriticality.set(entryPersonCriticalityObject).catch(error => {
+        return res.status(400).json({
+          status: 'error',
+          message: error.message
+        })
+      })
+
+      //for medicine we have to delete all existing entries and create new ones
+
+      const querySnapshot = await db.collection('morning_medication').get()
+
+      const batchSize = querySnapshot.size;
+
+      for(let i = 1; i <= batchSize; i++ ) {
+        const entryMedication = db.collection('morning_medication').doc(i.toString())
+        const currentMedicationData = (await entryMedication.get()).data() || {}
+  
+        const entryMedicationObject = {
+          criticality : currentMedicationData.criticality,
+          deleted : "true",
+          dosage : currentMedicationData.dosage,
+          medicine : currentMedicationData.medicine,
+          personId : currentMedicationData.personId
+        }
+  
+        await entryMedication.set(entryMedicationObject).catch(error => {
+          return res.status(400).json({
+            status: 'error',
+            message: error.message
+          })
+        })
+      }
+
+      let initialMedicineLength = initialMedicine.length;
+
+      for (let i=0; i < initialMedicineLength; i++){
+        let entryAddedMedication = db.collection('morning_medication').doc((batchSize + i + 1).toString())
+        let entryAddedMedicationObject = {
+          criticality : "initial",
+          deleted : "false",
+          dosage : initialMedicine[i][1],
+          medicine : initialMedicine[i][0],
+          personId : '1'
+        }
+
+        await entryAddedMedication.set(entryAddedMedicationObject)
+      }
+
+      let intensifiedMedicineLength = intensifiedMedicine.length;
+
+      for (let i=0; i < intensifiedMedicineLength; i++){
+        let entryAddedMedication = db.collection('morning_medication').doc((batchSize + initialMedicineLength + i + 1).toString())
+        let entryAddedMedicationObject = {
+          criticality : "intensified",
+          deleted : "false",
+          dosage : intensifiedMedicine[i][1],
+          medicine : intensifiedMedicine[i][0],
+          personId : '1'
+        }
+
+        await entryAddedMedication.set(entryAddedMedicationObject)
+      }
+  
+      return res.status(200).json({
+        status: 'success',
+        message: 'entry updated successfully',
+        // data: entryObject
+      })
+    }
+    catch(error : any) { return res.status(500).json(error.message) }
+  }
+
+export { addEntry, getAllEntries, updateEntry, deleteEntry, wishWithNickName, setPersonalLikeParamter, setMedicineParameter, setStreakParameter, updatePersonDetails }
