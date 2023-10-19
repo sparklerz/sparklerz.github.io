@@ -3,6 +3,11 @@ import { db } from './config/firebase'
 
 //const dialogflow_cx = require('@google-cloud/dialogflow-cx');
 
+// const cors = require('cors')({origin: true});
+
+// import * as cors from 'cors';
+// const corsHandler = cors({origin: true});
+
 type EntryType = {
   title: string,
   text: string,
@@ -225,104 +230,108 @@ const wishWithNickName = async (req: Request, res: Response) => {
   }
 
   const updatePersonDetails = async (req: Request, res: Response) => {
-    const { body: { nickName, personalLike, criticality, initialMedicine, intensifiedMedicine }} = req
+    //corsHandler(req, res, () => {
+      const { body: { nickName, personalLike, criticality, initialMedicine, intensifiedMedicine }} = req
 
-    try {
+      //res.set('Access-Control-Allow-Origin', '*');
 
-      const entryPerson = db.collection('person_likes').doc('1')
-      const currentPersonData = (await entryPerson.get()).data() || {}
-  
-      const entryPersonObject = {
-        nickName : nickName || currentPersonData.nickName,
-        personId : "1",
-        like : personalLike || currentPersonData.like
-      }
-  
-      await entryPerson.set(entryPersonObject).catch(error => {
-        return res.status(400).json({
-          status: 'error',
-          message: error.message
-        })
-      })
+      try {
 
-      const entryPersonCriticality = db.collection('person_criticality').doc('1')
-      const currentPersonCriticalityData = (await entryPersonCriticality.get()).data() || {}
-  
-      const entryPersonCriticalityObject = {
-        criticality : criticality || currentPersonCriticalityData.criticality,
-        personId : "1"
-      }
-  
-      await entryPersonCriticality.set(entryPersonCriticalityObject).catch(error => {
-        return res.status(400).json({
-          status: 'error',
-          message: error.message
-        })
-      })
-
-      //for medicine we have to delete all existing entries and create new ones
-
-      const querySnapshot = await db.collection('morning_medication').get()
-
-      const batchSize = querySnapshot.size;
-
-      for(let i = 1; i <= batchSize; i++ ) {
-        const entryMedication = db.collection('morning_medication').doc(i.toString())
-        const currentMedicationData = (await entryMedication.get()).data() || {}
-  
-        const entryMedicationObject = {
-          criticality : currentMedicationData.criticality,
-          deleted : "true",
-          dosage : currentMedicationData.dosage,
-          medicine : currentMedicationData.medicine,
-          personId : currentMedicationData.personId
+        const entryPerson = db.collection('person_likes').doc('1')
+        const currentPersonData = (await entryPerson.get()).data() || {}
+    
+        const entryPersonObject = {
+          nickName : nickName || currentPersonData.nickName,
+          personId : "1",
+          like : personalLike || currentPersonData.like
         }
-  
-        await entryMedication.set(entryMedicationObject).catch(error => {
+    
+        await entryPerson.set(entryPersonObject).catch(error => {
           return res.status(400).json({
             status: 'error',
             message: error.message
           })
         })
-      }
 
-      let initialMedicineLength = initialMedicine.length;
+        const entryPersonCriticality = db.collection('person_criticality').doc('1')
+        const currentPersonCriticalityData = (await entryPersonCriticality.get()).data() || {}
+    
+        const entryPersonCriticalityObject = {
+          criticality : criticality || currentPersonCriticalityData.criticality,
+          personId : "1"
+        }
+    
+        await entryPersonCriticality.set(entryPersonCriticalityObject).catch(error => {
+          return res.status(400).json({
+            status: 'error',
+            message: error.message
+          })
+        })
 
-      for (let i=0; i < initialMedicineLength; i++){
-        let entryAddedMedication = db.collection('morning_medication').doc((batchSize + i + 1).toString())
-        let entryAddedMedicationObject = {
-          criticality : "initial",
-          deleted : "false",
-          dosage : initialMedicine[i][1],
-          medicine : initialMedicine[i][0],
-          personId : '1'
+        //for medicine we have to delete all existing entries and create new ones
+
+        const querySnapshot = await db.collection('morning_medication').get()
+
+        const batchSize = querySnapshot.size;
+
+        for(let i = 1; i <= batchSize; i++ ) {
+          const entryMedication = db.collection('morning_medication').doc(i.toString())
+          const currentMedicationData = (await entryMedication.get()).data() || {}
+    
+          const entryMedicationObject = {
+            criticality : currentMedicationData.criticality,
+            deleted : "true",
+            dosage : currentMedicationData.dosage,
+            medicine : currentMedicationData.medicine,
+            personId : currentMedicationData.personId
+          }
+    
+          await entryMedication.set(entryMedicationObject).catch(error => {
+            return res.status(400).json({
+              status: 'error',
+              message: error.message
+            })
+          })
         }
 
-        await entryAddedMedication.set(entryAddedMedicationObject)
-      }
+        let initialMedicineLength = initialMedicine.length;
 
-      let intensifiedMedicineLength = intensifiedMedicine.length;
+        for (let i=0; i < initialMedicineLength; i++){
+          let entryAddedMedication = db.collection('morning_medication').doc((batchSize + i + 1).toString())
+          let entryAddedMedicationObject = {
+            criticality : "initial",
+            deleted : "false",
+            dosage : initialMedicine[i][1],
+            medicine : initialMedicine[i][0],
+            personId : '1'
+          }
 
-      for (let i=0; i < intensifiedMedicineLength; i++){
-        let entryAddedMedication = db.collection('morning_medication').doc((batchSize + initialMedicineLength + i + 1).toString())
-        let entryAddedMedicationObject = {
-          criticality : "intensified",
-          deleted : "false",
-          dosage : intensifiedMedicine[i][1],
-          medicine : intensifiedMedicine[i][0],
-          personId : '1'
+          await entryAddedMedication.set(entryAddedMedicationObject)
         }
 
-        await entryAddedMedication.set(entryAddedMedicationObject)
+        let intensifiedMedicineLength = intensifiedMedicine.length;
+
+        for (let i=0; i < intensifiedMedicineLength; i++){
+          let entryAddedMedication = db.collection('morning_medication').doc((batchSize + initialMedicineLength + i + 1).toString())
+          let entryAddedMedicationObject = {
+            criticality : "intensified",
+            deleted : "false",
+            dosage : intensifiedMedicine[i][1],
+            medicine : intensifiedMedicine[i][0],
+            personId : '1'
+          }
+
+          await entryAddedMedication.set(entryAddedMedicationObject)
+        }
+        
+        return res.status(200).json({
+          status: 'success',
+          message: 'entry updated successfully',
+          // data: entryObject
+        })
       }
-  
-      return res.status(200).json({
-        status: 'success',
-        message: 'entry updated successfully',
-        // data: entryObject
-      })
-    }
-    catch(error : any) { return res.status(500).json(error.message) }
+      catch(error : any) { return res.status(500).json(error.message) }
   }
+  
 
 export { addEntry, getAllEntries, updateEntry, deleteEntry, wishWithNickName, setPersonalLikeParamter, setMedicineParameter, setStreakParameter, updatePersonDetails }
