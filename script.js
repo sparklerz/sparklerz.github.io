@@ -6,9 +6,9 @@
 
         const statusInput = document.getElementById('status');
 
-        let initialMedicine;
+        let initialMedicine = [];
 
-        let intensifiedMedicine;
+        let intensifiedMedicine = [];
 
         function addField() {
             const inputFields = document.getElementById("inputFields");
