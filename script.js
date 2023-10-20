@@ -10,6 +10,8 @@
 
         let intensifiedMedicine = [];
 
+        let emptyCheck = false;
+
         function addField() {
             const inputFields = document.getElementById("inputFields");
       
@@ -31,6 +33,7 @@
         }
 
         function storeValues() {
+            emptyCheck = false;
             const inputFields = document.querySelectorAll("#inputFields div");
             const tempArray = [];
       
@@ -57,6 +60,14 @@
                     intensifiedMedicine.push([tempArray[i][1], tempArray[i][2]])
                 }
             }
+
+            for(let i=0; i < tempArray.length; i++){
+                for(let j=0; j< tempArray[i].length; j++){
+                    if(tempArray[i][j] == ''){
+                        emptyCheck = true;
+                    }
+                }
+            }
       
             // You can send the valuesArray to the server or further process it as needed
           }
@@ -69,34 +80,39 @@
             const favourites = favouritesInput.value;
             const status = statusInput.value;
 
-            // Define the data to send
-            const data = {
-                "nickName" : name,
-                "personalLike" : favourites, 
-                "criticality" : status, 
-                "initialMedicine" : initialMedicine, 
-                "intensifiedMedicine" : intensifiedMedicine
-            };
+            if(name == '' || favourites == '' || status == '' || emptyCheck){
+                alert("All the fields are mandatory and cannot be empty.");
+            } else {
+                const data = {
+                    "nickName" : name,
+                    "personalLike" : favourites, 
+                    "criticality" : status, 
+                    "initialMedicine" : initialMedicine, 
+                    "intensifiedMedicine" : intensifiedMedicine
+                };
+    
+                fetch('https://us-central1-adherer-3.cloudfunctions.net/app/updatePerson', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept' : '*/*',
+                        'Accept-Encoding' : 'gzip, deflate, br',
+                        'Connection' : 'keep-alive'
+                        // You may need to include additional headers as required by the API
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    // Handle the response from the API here
+                    console.log(result);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
 
-            fetch('https://us-central1-adherer-3.cloudfunctions.net/app/updatePerson', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept' : '*/*',
-                    'Accept-Encoding' : 'gzip, deflate, br',
-                    'Connection' : 'keep-alive'
-                    // You may need to include additional headers as required by the API
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => {
-                // Handle the response from the API here
-                console.log(result);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+            // Define the data to send
 
             //event.preventDefault(); // Prevent actual form submission
           });
