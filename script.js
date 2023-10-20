@@ -81,6 +81,7 @@
             const status = statusInput.value;
 
             if(name == '' || favourites == '' || status == '' || emptyCheck){
+                event.preventDefault();
                 alert("All the fields are mandatory and cannot be empty.");
             } else {
                 const data = {
@@ -112,9 +113,6 @@
                 });
             }
 
-            // Define the data to send
-
-            //event.preventDefault(); // Prevent actual form submission
           });
 
         // submitButton.addEventListener('click', () => {
